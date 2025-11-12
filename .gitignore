@@ -1,0 +1,11 @@
+# Environment variables (your Discord token)
+.env
+
+# Python virtual environment
+venv/
+
+# Compiled Python files
+__pycache__/
+
+# VS Code workspace files
+.vscode/
