@@ -22,8 +22,9 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    if message.content.startswith('$hello'):
+    if message.content.startswith('!hello'):
         await message.channel.send('Hey pookie bear!')
+
 
     # Allow commands to still work when on_message is overridden
     await bot.process_commands(message)
