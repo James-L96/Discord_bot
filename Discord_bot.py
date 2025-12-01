@@ -3,10 +3,21 @@ from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 import requests
+import logging
+
 # Load variables from .env
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 NEWS_KEY = os.getenv("NEWS_KEY")
+APITUBE_KEY = os.getenv("APITUBE_KEY")
+
+# ---- Setup logging ----
+logging.basicConfic(
+    filename='discord.log',
+    level = logging.DEBUG,
+    format='%(asctime)s:%(levelname)s:%(name)s: %(message)s'
+)
+# -----------------------
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -41,7 +52,25 @@ async def sports(ctx):
     await ctx.send(f"**Sports Update:** {title}\n🔗 {link}")
 
 @bot.command()
-async def games(ctx):
-    await ctx.send("Gaming news coming soon!")
+async def gaming(ctx, limit: int = 5):
+    url = "https://api.apitube.io/v1/news/everything"
+    params = {
+        "topic.id": "video_games_news",
+        "per_page": limit,
+        "api_key": APITUBE_KEY
+    }
+    response = requests.get(url, params=params).json()
+    articles = response.get("data", response.get("articles", []))
+    if not articles:
+        await ctx.send("No gaming news found 🤷‍♂️")
+        return
+
+    msg = "**🎮 Latest Gaming News**\n\n"
+    for art in articles[:limit]:
+        title = art.get("title")
+        link = art.get("url")
+        msg += f"- {title}\n  {link}\n\n"
+
+    await ctx.send(msg)
 
 bot.run(TOKEN)
