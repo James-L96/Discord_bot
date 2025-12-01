@@ -12,7 +12,7 @@ NEWS_KEY = os.getenv("NEWS_KEY")
 APITUBE_KEY = os.getenv("APITUBE_KEY")
 
 # ---- Setup logging ----
-logging.basicConfic(
+logging.basicConfig(
     filename='discord.log',
     level = logging.DEBUG,
     format='%(asctime)s:%(levelname)s:%(name)s: %(message)s'
