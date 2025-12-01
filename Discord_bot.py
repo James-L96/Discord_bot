@@ -52,7 +52,7 @@ async def sports(ctx):
     await ctx.send(f"**Sports Update:** {title}\n🔗 {link}")
 
 @bot.command()
-async def gaming(ctx, limit: int = 5):
+async def gaming(ctx, limit: int = 2):
     url = "https://api.apitube.io/v1/news/everything"
     params = {
         "topic.id": "video_games_news",
