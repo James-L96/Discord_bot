@@ -9,3 +9,8 @@ __pycache__/
 
 # VS Code workspace files
 .vscode/
+
+
+# Log files
+*.log
+/logs/
