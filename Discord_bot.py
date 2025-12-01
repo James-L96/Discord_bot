@@ -14,7 +14,7 @@ APITUBE_KEY = os.getenv("APITUBE_KEY")
 # ---- Setup logging ----
 logging.basicConfig(
     filename='discord.log',
-    level = logging.DEBUG,
+    level = logging.DEBUG, #Highest level of logging
     format='%(asctime)s:%(levelname)s:%(name)s: %(message)s'
 )
 # -----------------------
@@ -48,7 +48,7 @@ async def sports(ctx):
     article = response["articles"][0]
     title = article["title"]
     link = article["url"]
-
+    #Currently only pulls football news for some reason. 
     await ctx.send(f"**Sports Update:** {title}\n🔗 {link}")
 
 @bot.command()
@@ -58,8 +58,8 @@ async def gaming(ctx, limit: int = 2):
         "topic.id": "video_games_news",
         "per_page": limit,
         "api_key": APITUBE_KEY
-    }
-    response = requests.get(url, params=params).json()
+    } 
+    response = requests.get(url, params=params).json()#I just know it uploads the info into json format.
     articles = response.get("data", response.get("articles", []))
     if not articles:
         await ctx.send("No gaming news found 🤷‍♂️")
@@ -70,7 +70,9 @@ async def gaming(ctx, limit: int = 2):
         title = art.get("title")
         link = art.get("url")
         msg += f"- {title}\n  {link}\n\n"
-
+    #Work but currently finds no gaming news.
     await ctx.send(msg)
+
+#Work on embeds later.
 
 bot.run(TOKEN)
