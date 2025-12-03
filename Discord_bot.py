@@ -14,7 +14,7 @@ APITUBE_KEY = os.getenv("APITUBE_KEY")
 # ---- Setup logging ----
 logging.basicConfig(
     filename='discord.log',
-    level = logging.DEBUG,
+    level = logging.DEBUG, #Highest level of logging
     format='%(asctime)s:%(levelname)s:%(name)s: %(message)s'
 )
 # -----------------------
@@ -28,38 +28,49 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     print(f"Logged in as {bot.user}")
 
-@bot.event
-async def on_message(message):
-    # Prevent bot from replying to itself
-    if message.author == bot.user:
+@bot.command()
+async def sports(ctx, *, query: str = "sports"): #was going to use gpt but then remembered args and kwargs exist
+    url = (
+        f"https://newsapi.org/v2/everything?"
+        f"q={query}&sortBy=publishedAt&language=en&apiKey={NEWS_KEY}"
+    )
+
+    response = requests.get(url).json()
+    articles = response.get("articles", [])
+
+    if not articles:
+        await ctx.send(f"No sports news found for **{query}** 🤷‍♂️")
         return
 
-    if message.content.startswith('!hello'):
-        await message.channel.send('Hey pookie bear!')
+    article = articles[0]
 
-    await bot.process_commands(message)
+    title = article.get("title", "No title available")
+    desc = article.get("description", "No description available")
+    link = article.get("url")
+    image = article.get("urlToImage")
+    
+    #still need to read up on embeds
+    embed = discord.Embed(
+        title=title,
+        url=link,
+        description=desc,
+        color=0x2ecc71
+    )
+
+    if image:
+        embed.set_image(url=image)
+
+    await ctx.send(embed=embed)
 
 @bot.command()
-async def sports(ctx):
-    url = f"https://newsapi.org/v2/everything?q=sports&sortBy=publishedAt&apiKey={NEWS_KEY}"
-    response = requests.get(url).json()
-
-    # Get first headline
-    article = response["articles"][0]
-    title = article["title"]
-    link = article["url"]
-
-    await ctx.send(f"**Sports Update:** {title}\n🔗 {link}")
-
-@bot.command()
-async def gaming(ctx, limit: int = 5):
+async def gaming(ctx, limit: int = 2):
     url = "https://api.apitube.io/v1/news/everything"
     params = {
         "topic.id": "video_games_news",
         "per_page": limit,
         "api_key": APITUBE_KEY
-    }
-    response = requests.get(url, params=params).json()
+    } 
+    response = requests.get(url, params=params).json()#I just know it uploads the info into json format.
     articles = response.get("data", response.get("articles", []))
     if not articles:
         await ctx.send("No gaming news found 🤷‍♂️")
@@ -70,7 +81,9 @@ async def gaming(ctx, limit: int = 5):
         title = art.get("title")
         link = art.get("url")
         msg += f"- {title}\n  {link}\n\n"
-
+    #Work but currently finds no gaming news.
     await ctx.send(msg)
+
+#Work on embeds later.
 
 bot.run(TOKEN)
