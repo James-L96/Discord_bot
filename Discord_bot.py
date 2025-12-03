@@ -28,6 +28,17 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     print(f"Logged in as {bot.user}")
 
+@bot.event
+async def on_message(message):
+    # Prevent bot from replying to itself
+    if message.author == bot.user:
+        return
+
+    if message.content.startswith('!hello'):
+        await message.channel.send('Hey pookie bear!')
+
+    await bot.process_commands(message)
+
 @bot.command()
 async def sports(ctx, *, query: str = "sports"): #was going to use gpt but then remembered args and kwargs exist
     url = (
