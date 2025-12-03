@@ -28,28 +28,39 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     print(f"Logged in as {bot.user}")
 
-@bot.event
-async def on_message(message):
-    # Prevent bot from replying to itself
-    if message.author == bot.user:
+@bot.command()
+async def sports(ctx, *, query: str = "sports"): #was going to use gpt but then remembered args and kwargs exist
+    url = (
+        f"https://newsapi.org/v2/everything?"
+        f"q={query}&sortBy=publishedAt&language=en&apiKey={NEWS_KEY}"
+    )
+
+    response = requests.get(url).json()
+    articles = response.get("articles", [])
+
+    if not articles:
+        await ctx.send(f"No sports news found for **{query}** 🤷‍♂️")
         return
 
-    if message.content.startswith('!hello'):
-        await message.channel.send('Hey pookie bear!')
+    article = articles[0]
 
-    await bot.process_commands(message)
+    title = article.get("title", "No title available")
+    desc = article.get("description", "No description available")
+    link = article.get("url")
+    image = article.get("urlToImage")
+    
+    #still need to read up on embeds
+    embed = discord.Embed(
+        title=title,
+        url=link,
+        description=desc,
+        color=0x2ecc71
+    )
 
-@bot.command()
-async def sports(ctx):
-    url = f"https://newsapi.org/v2/everything?q=sports&sortBy=publishedAt&apiKey={NEWS_KEY}"
-    response = requests.get(url).json()
+    if image:
+        embed.set_image(url=image)
 
-    # Get first headline
-    article = response["articles"][0]
-    title = article["title"]
-    link = article["url"]
-    #Currently only pulls football news for some reason. 
-    await ctx.send(f"**Sports Update:** {title}\n🔗 {link}")
+    await ctx.send(embed=embed)
 
 @bot.command()
 async def gaming(ctx, limit: int = 2):
